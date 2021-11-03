@@ -7,6 +7,8 @@ import com.kaibai.shopping.pojo.KaiBaiUser;
 import com.kaibai.shopping.vo.QueryInfoVo;
 import com.kaibai.shopping.vo.UserInfoVo;
 
+import javax.servlet.http.HttpServletRequest;
+
 
 public interface UserService extends IService<KaiBaiUser> {
     ResponseResult login(String username , String password) throws Exception;

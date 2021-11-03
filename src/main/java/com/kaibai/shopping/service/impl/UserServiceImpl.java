@@ -11,6 +11,9 @@ import com.kaibai.shopping.pojo.KaiBaiUser;
 import com.kaibai.shopping.pojo.ShoppingCode;
 import com.kaibai.shopping.service.ShoppingCodeService;
 import com.kaibai.shopping.service.UserService;
+import com.kaibai.shopping.uitl.GetUserName;
+import com.kaibai.shopping.uitl.RedisUtil;
+import com.kaibai.shopping.vo.LoginVo;
 import com.kaibai.shopping.vo.QueryInfoVo;
 import com.kaibai.shopping.vo.UserInfoVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +23,16 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, KaiBaiUser> implements UserService {
 
     @Autowired
     ShoppingCodeService shoppingCodeService;
+
+    @Autowired
+    RedisUtil redisUtil;
 
     @Override
     public ResponseResult login(String username, String password) throws Exception {
@@ -35,7 +42,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, KaiBaiUser> impleme
         KaiBaiUser user = baseMapper.selectOne(queryWrapper.like("username", username));
 
         if(null != user && user.getPassword().equals(password)) {
-            return new ResponseResult("200", user);
+            //账号被禁用则无法登录
+            if("2".equals(user.getStatus())) {
+                return new ResponseResult("300", "账号被禁用，请联系管理员解封");
+            }
+
+            LoginVo loginVo = new LoginVo();
+
+            String token = IdGenerater.getId() + "-" + user.getUsername() + user.getRole();
+            //redis存放token - 2小时
+            redisUtil.set(user.getUsername(), token, 120l, TimeUnit.MINUTES);
+
+            loginVo.setUsername(user.getUsername());
+            loginVo.setPassword(user.getPassword());
+            loginVo.setToken(token);
+            return new ResponseResult("200", loginVo);
         }else {
             return new ResponseResult("300", "用户名或密码不存在");
         }
@@ -44,6 +65,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, KaiBaiUser> impleme
 
     @Override
     public ResponseResult getUsersInfo(QueryInfoVo queryInfoVo) throws Exception {
+
         //获得角色名称
         List<ShoppingCode> shoppingCodes = shoppingCodeService.list(new QueryWrapper<ShoppingCode>().eq("codetype", "userrole"));
 

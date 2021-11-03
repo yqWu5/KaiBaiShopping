@@ -2,11 +2,16 @@ package com.kaibai.shopping.controller;
 
 import com.kaibai.shopping.common.ResponseResult;
 import com.kaibai.shopping.service.UserService;
+import com.kaibai.shopping.uitl.GetUserName;
+import com.kaibai.shopping.uitl.RedisUtil;
 import com.kaibai.shopping.vo.LoginVo;
 import com.kaibai.shopping.vo.QueryInfoVo;
 import com.kaibai.shopping.vo.UserInfoVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.ws.Response;
 
 @RestController
 @RequestMapping("/user/")
@@ -14,7 +19,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @Autowired
     UserService UserService;
-
+    @Autowired
+    RedisUtil redisUtil;
     //登录
     @PostMapping("login.do")
     public ResponseResult login(@RequestBody LoginVo loginVo) throws Exception {
