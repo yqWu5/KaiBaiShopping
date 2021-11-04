@@ -19,6 +19,8 @@ public interface UserService extends IService<KaiBaiUser> {
 
     ResponseResult getUserInfoById(UserInfoVo userInfoVo) throws Exception;
 
+    ResponseResult getUserInfoByLogin(HttpServletRequest request) throws Exception;
+
     ResponseResult addUser(UserInfoVo userInfoVo) throws Exception;
 
     ResponseResult deleteUser(String id) throws  Exception;

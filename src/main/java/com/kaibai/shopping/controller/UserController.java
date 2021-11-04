@@ -45,6 +45,13 @@ public class UserController {
         return UserService.getUserInfoById(userInfoVo);
     }
 
+    //根据id获取用户信息 - 用于更新用户信息
+    @PostMapping("getUserInfoByLogin.do")
+    public ResponseResult getUserInfoByLogin(HttpServletRequest request) throws Exception {
+        System.out.println("hello");
+        return UserService.getUserInfoByLogin(request);
+    }
+
     //新增用户
     @PostMapping("addUser.do")
     public ResponseResult addUser(@RequestBody UserInfoVo userInfoVo) throws Exception {

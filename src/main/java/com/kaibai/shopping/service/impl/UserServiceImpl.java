@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -160,6 +161,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, KaiBaiUser> impleme
         }
     }
 
+    //根据id获取用户信息
     @Override
     public ResponseResult getUserInfoById(UserInfoVo userInfoVo) throws Exception {
         String id = userInfoVo.getId();
@@ -179,6 +181,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, KaiBaiUser> impleme
             return new ResponseResult("200",returnUserInfoVo);
         }
     }
+
+    //获取登录用户的信息
+    @Override
+    public ResponseResult getUserInfoByLogin(HttpServletRequest request) throws Exception {
+        String token = request.getHeader("Authorization");
+        String userName = GetUserName.getUserName(token);
+
+        KaiBaiUser user = baseMapper.selectOne(new QueryWrapper<KaiBaiUser>().eq("username", userName));
+        UserInfoVo userInfoVo = new UserInfoVo();
+        if(null != user) {
+            userInfoVo.setId(user.getId());
+            userInfoVo.setUsername(user.getUsername());
+            userInfoVo.setPassword(user.getPassword());
+            userInfoVo.setEmail(user.getEmail());
+            userInfoVo.setPhone(user.getPhone());
+            userInfoVo.setStatus(user.getStatus());
+            userInfoVo.setRole(user.getRole());
+
+            return new ResponseResult("200",user);
+        }else {
+            return new ResponseResult("300", "获取用户信息失败");
+        }
+    }
+
 
     @Override
     public ResponseResult addUser(UserInfoVo userInfoVo) throws Exception {
